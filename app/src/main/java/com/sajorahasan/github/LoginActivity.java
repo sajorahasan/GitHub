@@ -2,6 +2,7 @@ package com.sajorahasan.github;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.view.View;
@@ -29,9 +30,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnLogin:
-                Intent i = new Intent(getApplicationContext(), UserActivity.class);
-                i.putExtra("name", etUsername.getText().toString().trim());
-                startActivity(i);
+                String data = etUsername.getText().toString().trim();
+
+                if (!data.isEmpty()) {
+                    Intent i = new Intent(getApplicationContext(), UserActivity.class);
+                    i.putExtra("name", data);
+                    startActivity(i);
+
+                } else {
+
+                    Snackbar.make(btnLogin, "Field is empty !", Snackbar.LENGTH_LONG).show();
+                }
 
                 break;
         }

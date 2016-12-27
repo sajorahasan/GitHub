@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorDarkGrey"
+    android:gravity="center"
     android:orientation="vertical"
     android:paddingLeft="30dp"
     android:paddingRight="30dp"
@@ -35,15 +36,7 @@
         android:drawableRight="@drawable/ic_forward"
         android:drawableTint="@color/white"
         android:text="Log In"
-        android:textColor="@color/white" />
-
-    <ProgressBar
-        android:id="@+id/progress"
-        style="@style/Base.Widget.AppCompat.ProgressBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:indeterminate="true"
-        android:visibility="invisible" />
+        android:textColor="@color/white"
+        android:textSize="16sp" />
 
 </LinearLayout>
