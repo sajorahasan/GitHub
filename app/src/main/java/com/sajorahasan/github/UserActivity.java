@@ -14,9 +14,9 @@ import com.sajorahasan.github.rest.APIClient;
 import com.sajorahasan.github.rest.GitHubUserEndPoints;
 import com.squareup.picasso.Picasso;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class UserActivity extends AppCompatActivity implements View.OnClickListener {
@@ -24,6 +24,7 @@ public class UserActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView avatar;
     private TextView username, logIn, followers, bio, followings, email;
     private String data;
+    private CompositeDisposable mCompositeDisposable;
     private AppCompatButton repos;
 
     @Override
@@ -46,6 +47,7 @@ public class UserActivity extends AppCompatActivity implements View.OnClickListe
         extras = getIntent().getExtras();
         data = extras.getString("name");
 
+        mCompositeDisposable = new CompositeDisposable();
         loadData();
 
         repos.setOnClickListener(this);
@@ -68,44 +70,43 @@ public class UserActivity extends AppCompatActivity implements View.OnClickListe
         final GitHubUserEndPoints apiService =
                 APIClient.getClient().create(GitHubUserEndPoints.class);
 
-        Call<GitHubUser> call = apiService.getUser(data);
-        call.enqueue(new Callback<GitHubUser>() {
-            @Override
-            public void onResponse(Call<GitHubUser> call, Response<GitHubUser> response) {
+        mCompositeDisposable.add(apiService.getUser(data)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(this::handleResponse, this::handleError));
+    }
 
-                if (response.body().getName() == null) {
-                    username.setText("No name provided");
-                } else {
-                    username.setText("Name: " + response.body().getName());
-                }
+    private void handleResponse(GitHubUser gitHubUser) {
 
-                if (response.body().getBio() == null) {
-                    bio.setText("No bio provided");
-                } else {
-                    bio.setText("Bio: " + response.body().getBio());
-                }
+        if (gitHubUser.getName() == null) {
+            username.setText("No name provided");
+        } else {
+            username.setText("Name: " + gitHubUser.getName());
+        }
 
-                if (response.body().getEmail() == null) {
-                    bio.setText("No email provided");
-                } else {
-                    email.setText("Email: " + response.body().getEmail());
-                }
+        if (gitHubUser.getBio() == null) {
+            bio.setText("No bio provided");
+        } else {
+            bio.setText("Bio: " + gitHubUser.getBio());
+        }
 
-                logIn.setText("Username: " + response.body().getLogin());
-                followers.setText("Followers: " + response.body().getFollowers());
-                followings.setText("Following: " + response.body().getFollowings());
+        if (gitHubUser.getEmail() == null) {
+            bio.setText("No email provided");
+        } else {
+            email.setText("Email: " + gitHubUser.getEmail());
+        }
 
-                Picasso.with(getApplicationContext())
-                        .load(response.body().getAvatar())
-                        .into(avatar);
+        logIn.setText("Username: " + gitHubUser.getLogin());
+        followers.setText("Followers: " + gitHubUser.getFollowers());
+        followings.setText("Following: " + gitHubUser.getFollowings());
 
-            }
+        Picasso.with(getApplicationContext())
+                .load(gitHubUser.getAvatar())
+                .into(avatar);
 
-            @Override
-            public void onFailure(Call<GitHubUser> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Error " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+    }
 
+    private void handleError(Throwable throwable) {
+        Toast.makeText(getApplicationContext(), "Error " + throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
     }
 }

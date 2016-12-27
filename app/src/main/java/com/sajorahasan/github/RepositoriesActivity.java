@@ -14,15 +14,16 @@ import com.sajorahasan.github.rest.GitHubRepoEndPoint;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class RepositoriesActivity extends AppCompatActivity {
 
     private String receivedName;
     private RecyclerView recyclerView;
     private ReposAdapter adapter;
+    private CompositeDisposable mCompositeDisposable;
     List<GitHubRepo> myDataSource = new ArrayList<>();
 
 
@@ -40,6 +41,7 @@ public class RepositoriesActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
+        mCompositeDisposable = new CompositeDisposable();
         loadRepositories();
     }
 
@@ -48,19 +50,19 @@ public class RepositoriesActivity extends AppCompatActivity {
         GitHubRepoEndPoint apiService =
                 APIClient.getClient().create(GitHubRepoEndPoint.class);
 
-        Call<List<GitHubRepo>> call = apiService.getRepo(receivedName);
-        call.enqueue(new Callback<List<GitHubRepo>>() {
-            @Override
-            public void onResponse(Call<List<GitHubRepo>> call, Response<List<GitHubRepo>> response) {
-                myDataSource = new ArrayList<>(response.body());
-                adapter = new ReposAdapter(myDataSource);
-                recyclerView.setAdapter(adapter);
-            }
+        mCompositeDisposable.add(apiService.getRepo(receivedName)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(this::handleResponse, this::handleError));
+    }
 
-            @Override
-            public void onFailure(Call<List<GitHubRepo>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Error " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void handleResponse(List<GitHubRepo> gitHubRepos) {
+        myDataSource = new ArrayList<>(gitHubRepos);
+        adapter = new ReposAdapter(myDataSource);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void handleError(Throwable throwable) {
+        Toast.makeText(getApplicationContext(), "Error " + throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
     }
 }

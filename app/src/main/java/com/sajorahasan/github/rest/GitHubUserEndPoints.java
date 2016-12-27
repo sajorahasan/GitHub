@@ -2,7 +2,7 @@ package com.sajorahasan.github.rest;
 
 import com.sajorahasan.github.model.GitHubUser;
 
-import retrofit2.Call;
+import io.reactivex.Observable;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
@@ -13,6 +13,6 @@ import retrofit2.http.Path;
 public interface GitHubUserEndPoints {
 
     @GET("/users/{user}")
-    Call<GitHubUser> getUser(@Path("user") String user);
+    Observable<GitHubUser> getUser(@Path("user") String user);
 
 }
