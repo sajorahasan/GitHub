@@ -7,10 +7,20 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.sajorahasan.github.model.GitHubUser;
+import com.sajorahasan.github.rest.APIClient;
+import com.sajorahasan.github.rest.GitHubUserEndPoints;
+import com.squareup.picasso.Picasso;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+
 public class UserActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ImageView avatar;
-    private TextView username, logIn, followers, followings, email;
+    private TextView username, logIn, followers, bio, followings, email;
     private String data;
     private AppCompatButton repos;
 
@@ -25,6 +35,7 @@ public class UserActivity extends AppCompatActivity implements View.OnClickListe
         logIn = (TextView) findViewById(R.id.logIn);
         followers = (TextView) findViewById(R.id.followers);
         followings = (TextView) findViewById(R.id.followings);
+        bio = (TextView) findViewById(R.id.bio);
         email = (TextView) findViewById(R.id.email);
         repos = (AppCompatButton) findViewById(R.id.repos);
 
@@ -33,7 +44,7 @@ public class UserActivity extends AppCompatActivity implements View.OnClickListe
         extras = getIntent().getExtras();
         data = extras.getString("name");
 
-
+        loadData();
 
         repos.setOnClickListener(this);
     }
@@ -46,5 +57,51 @@ public class UserActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
         }
+    }
+
+    private void loadData() {
+
+        final GitHubUserEndPoints apiService =
+                APIClient.getClient().create(GitHubUserEndPoints.class);
+
+        Call<GitHubUser> call = apiService.getUser(data);
+        call.enqueue(new Callback<GitHubUser>() {
+            @Override
+            public void onResponse(Call<GitHubUser> call, Response<GitHubUser> response) {
+
+                if (response.body().getName() == null) {
+                    username.setText("No name provided");
+                } else {
+                    username.setText("Name: " + response.body().getName());
+                }
+
+                if (response.body().getBio() == null) {
+                    bio.setText("No bio provided");
+                } else {
+                    bio.setText("Bio: " + response.body().getBio());
+                }
+
+                if (response.body().getEmail() == null) {
+                    bio.setText("No email provided");
+                } else {
+                    email.setText("Email: " + response.body().getEmail());
+                }
+
+                logIn.setText("Username: " + response.body().getLogin());
+                followers.setText("Followers: " + response.body().getFollowers());
+                followings.setText("Following: " + response.body().getFollowings());
+
+                Picasso.with(getApplicationContext())
+                        .load(response.body().getAvatar())
+                        .into(avatar);
+
+            }
+
+            @Override
+            public void onFailure(Call<GitHubUser> call, Throwable t) {
+
+            }
+        });
+
     }
 }

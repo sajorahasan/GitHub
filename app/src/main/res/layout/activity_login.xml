@@ -23,6 +23,7 @@
             android:drawableRight="@drawable/ic_user"
             android:drawableTint="@color/colorAccent"
             android:hint="Username"
+            android:maxLines="1"
             android:textColor="@color/white" />
     </android.support.design.widget.TextInputLayout>
 
