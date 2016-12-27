@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.sajorahasan.github.adapter.ReposAdapter;
 import com.sajorahasan.github.model.GitHubRepo;
@@ -58,7 +59,7 @@ public class RepositoriesActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<GitHubRepo>> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Error " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -7,6 +7,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sajorahasan.github.model.GitHubUser;
 import com.sajorahasan.github.rest.APIClient;
@@ -102,7 +103,7 @@ public class UserActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onFailure(Call<GitHubUser> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Error " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
