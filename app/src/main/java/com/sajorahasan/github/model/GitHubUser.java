@@ -29,7 +29,6 @@ public class GitHubUser {
     @SerializedName("email")
     private String email;
 
-
     public GitHubUser(String avatar, String login, String name, String bio, String followers, String followings, String email) {
         this.avatar = avatar;
         this.login = login;

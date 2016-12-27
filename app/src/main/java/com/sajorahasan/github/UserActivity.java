@@ -1,5 +1,6 @@
 package com.sajorahasan.github;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -54,7 +55,9 @@ public class UserActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.repos:
 
-
+                Intent i = new Intent(getApplicationContext(), RepositoriesActivity.class);
+                i.putExtra("name", data);
+                startActivity(i);
                 break;
         }
     }
